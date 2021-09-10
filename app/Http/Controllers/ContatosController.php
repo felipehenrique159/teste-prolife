@@ -8,6 +8,7 @@ use App\Repositories\ContatosRepository;
 use App\Http\Controllers\AppBaseController;
 use App\Mail\EnvioMailContato;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Flash;
 use Illuminate\Support\Facades\Mail;
@@ -60,7 +61,9 @@ class ContatosController extends AppBaseController
     {   
        try {
             $input = $request->all();
-            $path = 'contatos/'.$input['file']->getClientOriginalName();
+            $date = new DateTime();
+            $data = $date->getTimestamp();  //para evitar arquivos com nome repetido
+            $path = 'contatos/'.$data.'_'.$input['file']->getClientOriginalName();
             $conteudo = file_get_contents($input['file']->getRealPath());
             Storage::disk('local')->put($path,$conteudo);
             
@@ -138,8 +141,11 @@ class ContatosController extends AppBaseController
             }
 
             Storage::disk('local')->delete($contato->url_anexo); //excluir arquivo anterior do storage
-            $path = 'contatos/'.$input['file']->getClientOriginalName();
+            $date = new DateTime();
+            $data = $date->getTimestamp();
+            $path = 'contatos/'.$data.'_'.$input['file']->getClientOriginalName();
             $conteudo = file_get_contents($input['file']->getRealPath());
+            
             Storage::disk('local')->put($path,$conteudo);
             
             $input['url_anexo'] = $path; //atualiza o path do novo arquivo
